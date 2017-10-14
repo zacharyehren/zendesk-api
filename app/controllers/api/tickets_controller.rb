@@ -6,4 +6,8 @@ class Api::TicketsController < ApplicationController
     render @tickets
   end
 
+  def show
+    @ticket = ZEN_CLIENT.tickets.find!(params[:id])
+  end
+
 end
