@@ -9,7 +9,7 @@ ZEN_CLIENT = ZendeskAPI::Client.new do |config|
   config.username = "thetravelingyeti@gmail.com"
 
   # Choose one of the following depending on your authentication choice
-  config.token = "ZENDESK_TOKEN"
+  config.token = ENV["ZENDESK_TOKEN"]
   # config.password = "your zendesk password"
 
   # OAuth Authentication
