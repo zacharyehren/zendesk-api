@@ -33,6 +33,7 @@ gem 'devise'
 gem 'bcrypt'
 gem 'zendesk_api'
 gem 'figaro'
+gem 'rest-client'
 
 source "https://rails-assets.org" do
   gem "rails-assets-angular-devise"
