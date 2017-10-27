@@ -6,26 +6,24 @@ class Api::TicketsController < ApplicationController
   end
 
   def show
-    ticket = ZD_Request.get_comments(:id)
+    comment = ZEN_CLIENT.tickets.find(id: params[:id]).comments
+    render json: serialize_comment(comment)
   end
 
   private
-  def serialize_tickets(tickets)
-    ticket_array = []
-    tickets.all do | resource |
-      ticket_array << {id: resource.id, subject: resource.subject }
+    def serialize_tickets(tickets)
+      ticket_array = []
+      tickets.all do | resource |
+        ticket_array << {id: resource.id, subject: resource.subject }
     end
-    # new_tickets = []
-    #
-    # tickets.each do |ticket|
-    #   ticket_hash = {}
-    #   ticket_hash[:subject] = ticket.subject
-    #   # Insert other stuff from tickets into the hash that's needed
-    #
-    #   new_tickets << ticket_hash
-    # end
-    #
-    # new_tickets.to_json
     ticket_array
+  end
+
+  def serialize_comment(comment)
+    comment_array = []
+    comment.all do | resource |
+      comment_array << { body: resource.body, sender: resource.via.source.from.name }
+    end
+    comment_array
   end
 end
