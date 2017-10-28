@@ -11,7 +11,7 @@ class Api::TicketsController < ApplicationController
   end
 
   def create(subject, comment_value, submitter)
-    new_ticket = ZEN_CLIENT.tickets.create(:subject => subject, :comment => { :value => comment_body }, :submitter_id => submitter)
+    new_ticket = ZEN_CLIENT.tickets.create(:subject => subject, :comment => { :value => comment_body }, :via => { :source => { :from => { :name => submitter }}}, :requester => { :name => submitter })
   end
 
   private
