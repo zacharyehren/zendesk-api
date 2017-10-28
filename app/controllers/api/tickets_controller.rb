@@ -10,6 +10,10 @@ class Api::TicketsController < ApplicationController
     render json: serialize_comment(comment)
   end
 
+  def create(subject, comment_value, submitter)
+    new_ticket = ZEN_CLIENT.tickets.create(:subject => subject, :comment => { :value => comment_body }, :submitter_id => submitter)
+  end
+
   private
     def serialize_tickets(tickets)
       ticket_array = []
