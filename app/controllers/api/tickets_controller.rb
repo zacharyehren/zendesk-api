@@ -15,8 +15,9 @@ class Api::TicketsController < ApplicationController
   end
 
   def create_comment
+    user = ZEN_CLIENT.users.search(:query => user_email)
     ticket = ZEN_CLIENT.tickets.find(id: params[:id])
-    ticket.update(comment: {:body => body, :via => { :source => { :from => { :name => submitter }}}, :requester => { :name => submitter }})
+    ticket.update(comment: {:body => "body", :author_id => user.id })
     ticket.save
   end
 
