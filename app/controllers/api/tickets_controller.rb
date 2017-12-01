@@ -35,7 +35,6 @@ class Api::TicketsController < ApplicationController
 
   private
     def serialize_tickets(tickets)
-      # find all of the info in one (call n+1 query on DB level) n+1 issues
       ticket_array = []
       tickets.all do | resource |
         submitter_name = resource.submitter.name
@@ -52,8 +51,6 @@ class Api::TicketsController < ApplicationController
     comment_array = []
     comment.all do | resource |
       sender = resource.author
-      # user = ZEN_CLIENT.users.search(:query => resource.author_id)
-      # user_email = user.first.name
       comment_array << {
         body: resource.body,
         sender: sender.name }
