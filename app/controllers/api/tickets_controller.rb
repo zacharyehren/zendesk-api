@@ -14,8 +14,8 @@ class Api::TicketsController < ApplicationController
     new_ticket = ZEN_CLIENT.tickets.create(
       :subject => params[:subject],
       :comment => { :value => params[:comment_body] },
-      :via => { :source => { :from => { :name => params[:submitter] }}},
-      :requester => { :name => params[:submitter] }
+      :requester => { :name => params[:submitter] },
+      :email => params[:submitter]
     )
   end
 
@@ -35,6 +35,7 @@ class Api::TicketsController < ApplicationController
 
   private
     def serialize_tickets(tickets)
+      puts tickets
       ticket_array = []
       tickets.all do | resource |
         submitter_name = resource.submitter.name
