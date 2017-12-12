@@ -1,7 +1,7 @@
 class Api::TicketsController < ApplicationController
 
   def index
-    tickets = ZEN_CLIENT.search(:query => "type:ticket status<solved").include(:users)
+    tickets = ZEN_CLIENT.search(:query => "tags:csm status<solved")
     render json: serialize_tickets(tickets)
   end
 

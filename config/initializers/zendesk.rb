@@ -3,10 +3,10 @@ require 'zendesk_api'
 ZEN_CLIENT = ZendeskAPI::Client.new do |config|
   # Mandatory:
 
-  config.url = "https://csmtool.zendesk.com/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
+  config.url = "https://sharethrough.zendesk.com/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
 
   # Basic / Token Authentication
-  config.username = "zacharyehren@gmail.com"
+  config.username = "skimm@sharethrough.com"
 
   # Choose one of the following depending on your authentication choice
   config.token = ENV["ZENDESK_TOKEN"]
