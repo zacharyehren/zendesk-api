@@ -1,7 +1,7 @@
 class Api::TicketsController < ApplicationController
 
   def index
-    sfa_tickets = ZEN_CLIENT.search(:query => "tags:csm tags:sfa_other tags:advertiser_user status<solved order_by:created_at")
+    sfa_tickets = ZEN_CLIENT.search(:query => "tags:csm tags:sfa_other status<solved order_by:created_at")
     ticket_array, submitter_ids = serialize_csm_data(sfa_tickets)
     users = ZEN_CLIENT.users.show_many(:ids => submitter_ids)
     submitter_user_data = {}
@@ -12,8 +12,11 @@ class Api::TicketsController < ApplicationController
   end
 
   def show
-    comment = ZEN_CLIENT.tickets.find(id: params[:id]).comments.include(:users)
-    render json: serialize_comment(comment)
+    ticket = ZEN_CLIENT.tickets.find(id: params[:id])
+    comments = ticket.comments.fetch
+    #filters out private comments
+    public_comments = comments.select {|c| c.public == true}
+    render json: serialize_comment(public_comments)
   end
 
   def create
@@ -48,7 +51,9 @@ class Api::TicketsController < ApplicationController
           id: resource.id,
           subject: resource.subject,
           submitter: resource.submitter_id,
-          created_at: resource.created_at
+          created_at: resource.created_at,
+          updated_at: resource.updated_at,
+          status: resource.status
         }
           submitter_ids << resource.submitter_id
     end
@@ -58,7 +63,7 @@ class Api::TicketsController < ApplicationController
 
   def serialize_comment(comment)
     comment_array = []
-    comment.all do | resource |
+    comment.each do | resource |
       sender = resource.author
       comment_array << {
         body: resource.body,
