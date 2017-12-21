@@ -23,8 +23,8 @@ class Api::TicketsController < ApplicationController
     new_ticket = ZEN_CLIENT.tickets.create(
       :subject => params[:subject],
       :comment => { :value => params[:comment_body] },
-      :requester => { :name => params[:submitter] },
-      :email => params[:submitter]
+      :requester => { :name => params[:submitter_name] },
+      :email => params[:submitter_email]
     )
   end
 
