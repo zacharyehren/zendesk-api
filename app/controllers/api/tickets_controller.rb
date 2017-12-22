@@ -67,6 +67,7 @@ class Api::TicketsController < ApplicationController
       sender = resource.author
       comment_array << {
         body: resource.body,
+        created_at: resource.created_at,
         sender: sender.name }
     end
     comment_array
