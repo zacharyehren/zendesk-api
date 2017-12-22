@@ -1,0 +1,2 @@
+class ClosedTicket < ApplicationRecord
+end
