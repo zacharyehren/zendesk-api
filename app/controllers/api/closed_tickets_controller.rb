@@ -4,7 +4,7 @@ class Api::ClosedTicketsController < ApplicationController
   def index
     now = Date.today
     two_weeks_ago = (now - 14)
-    sfa_closed_tickets = ZEN_CLIENT.search(:query => "tags:csm tags:sfa_other status:closed order_by:updated_at updated>" + two_weeks_ago.to_s)
+    sfa_closed_tickets = ZEN_CLIENT.search(:query => "tags:csm tags:sfa_other status:solved status:closed order_by:updated_at updated>" + two_weeks_ago.to_s)
     ticket_array, submitter_ids = serialize_csm_data(sfa_closed_tickets)
     users = ZEN_CLIENT.users.show_many(:ids => submitter_ids)
     submitter_user_data = {}
