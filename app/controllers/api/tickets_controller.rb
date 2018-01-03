@@ -13,9 +13,10 @@ class Api::TicketsController < ApplicationController
 
   def show
     ticket = ZEN_CLIENT.tickets.find(id: params[:id])
-    comments = ticket.comments.fetch
+
+    comments = ticket.comments.include(:users).fetch
     #filters out private comments
-    public_comments = comments.select {|c| c.public == true}
+    public_comments = ticket.comments.select {|c| c.public == true}
     render json: serialize_comment(public_comments)
   end
 
@@ -64,11 +65,10 @@ class Api::TicketsController < ApplicationController
   def serialize_comment(comment)
     comment_array = []
     comment.each do | resource |
-      sender = resource.author
       comment_array << {
         body: resource.body,
         created_at: resource.created_at,
-        sender: sender.name }
+        sender: resource.author.name }
     end
     comment_array
   end
