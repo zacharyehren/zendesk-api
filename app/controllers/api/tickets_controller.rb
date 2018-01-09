@@ -16,7 +16,7 @@ class Api::TicketsController < ApplicationController
 
     comments = ticket.comments.include(:users).fetch
     #filters out private comments
-    public_comments = ticket.comments.select {|c| c.public == true}
+    public_comments = comments.select {|c| c.public == true}
     render json: serialize_comment(public_comments)
   end
 

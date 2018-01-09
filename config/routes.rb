@@ -3,6 +3,6 @@ Rails.application.routes.draw do
      resources :tickets
      match 'tickets/new_comment' => 'tickets#new_comment', via: :post
      resources :closed_tickets, only: [:index, :show]
-     match 'closed_tickets/new_comment' => 'closed_tickets#new_comment', via: :post
+     resources :my_tickets
   end
 end
