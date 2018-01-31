@@ -2,18 +2,12 @@ class Api::TicketsController < ApplicationController
 
   def index
     sfa_tickets = ZEN_CLIENT.search(:query => "tags:csm tags:sfa_other status<solved order_by:created_at -tags:child_ticket")
-    ticket_array, submitter_ids = serialize_csm_data(sfa_tickets)
-    users = ZEN_CLIENT.users.show_many(:ids => submitter_ids)
-    submitter_user_data = {}
-    users.all do |user|
-      submitter_user_data[user.id] = user.name
-    end
-    render json: {ticket: ticket_array, users: submitter_user_data}
+    ticket_array = serialize_ticket_data(sfa_tickets)
+    render json: {ticket: ticket_array}
   end
 
   def show
     ticket = ZEN_CLIENT.tickets.find(id: params[:id])
-
     comments = ticket.comments.include(:users).fetch
     #filters out private comments
     public_comments = comments.select {|c| c.public == true}
@@ -44,23 +38,6 @@ class Api::TicketsController < ApplicationController
   end
 
   private
-    def serialize_csm_data(sfa_data)
-      submitter_ids = []
-      ticket_array = []
-      sfa_data.all do | resource |
-        ticket_array << {
-          id: resource.id,
-          subject: resource.subject,
-          submitter: resource.submitter_id,
-          created_at: resource.created_at,
-          updated_at: resource.updated_at,
-          status: resource.status
-        }
-          submitter_ids << resource.submitter_id
-    end
-
-    [ticket_array, submitter_ids]
-  end
 
   def serialize_comment(comment)
     comment_array = []
