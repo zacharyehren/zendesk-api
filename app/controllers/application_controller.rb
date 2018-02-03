@@ -6,11 +6,13 @@ class ApplicationController < ActionController::API
     sfa_data.all do | resource |
       ticket_array << {
         id: resource.id,
+        problem_id: resource.problem_id,
+        type: resource.type,
         subject: resource.subject,
         submitter: resource.submitter_id,
         created_at: resource.created_at,
         updated_at: resource.updated_at,
-        status: resource.status
+        status: resource.status,
       }
         submitter_ids << resource.submitter_id
     end

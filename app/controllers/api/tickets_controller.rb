@@ -1,9 +1,11 @@
 class Api::TicketsController < ApplicationController
 
   def index
-    sfa_tickets = ZEN_CLIENT.search(:query => "tags:csm tags:sfa_other status<solved order_by:created_at -tags:child_ticket")
+    sfa_tickets = ZEN_CLIENT.search(:query => "tags:csm tags:sfa_other status<solved order_by:created_at -tags:child_ticket -ticket_type:incident")
+    incident_tickets = ZEN_CLIENT.search(:query => "tags:csm tags:sfa_other status<solved order_by:created_at -tags:child_ticket ticket_type:incident")
     ticket_array = serialize_ticket_data(sfa_tickets)
-    render json: {ticket: ticket_array}
+    incident_ticket_array = serialize_ticket_data(incident_tickets)
+    render json: {ticket: ticket_array, incidents: incident_ticket_array}
   end
 
   def show
