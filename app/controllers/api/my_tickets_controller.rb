@@ -15,6 +15,7 @@ private
     my_tickets.all do | resource |
         ticket_array << {
           id: resource.id,
+          problem_id: resource.problem_id,
           type: resource.type,
           subject: resource.subject,
           submitter: resource.submitter_id,
