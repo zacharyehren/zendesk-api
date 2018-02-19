@@ -22,6 +22,7 @@ private
           created_at: resource.created_at,
           updated_at: resource.updated_at,
           status: resource.status,
+          has_incidents: resource.has_incidents
           }
     submitter_ids << resource.submitter_id
   end

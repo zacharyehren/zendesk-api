@@ -4,6 +4,7 @@ class ApplicationController < ActionController::API
     submitter_ids = []
     ticket_array = []
     incident_ticket_array = []
+    $my_tickets_array = []
     sfa_data.all do | resource |
       if resource.type == "incident"
         incident_ticket_array << {
@@ -14,7 +15,7 @@ class ApplicationController < ActionController::API
           submitter: resource.submitter_id,
           created_at: resource.created_at,
           updated_at: resource.updated_at,
-          status: resource.status,
+          status: resource.status
           }
       else
         ticket_array << {
@@ -25,6 +26,7 @@ class ApplicationController < ActionController::API
           created_at: resource.created_at,
           updated_at: resource.updated_at,
           status: resource.status,
+          has_incidents: resource.has_incidents
           }
     end
     submitter_ids << resource.submitter_id
@@ -38,16 +40,21 @@ class ApplicationController < ActionController::API
       submitter_user_data[user.id] = user.name
     end
 
-    def create_users(ticket_object, submitter_user_data)
+    def create_users_and_my_tickets(ticket_object, submitter_user_data)
       ticket_object.each do | ticket |
         submitter_id = ticket[:submitter]
         ticket[:username] = submitter_user_data[submitter_id]
       end
+      ticket_object.each do | ticket|
+        if ticket[:username] == params[:username]
+          $my_tickets_array << ticket
+        end
+      end
     end
 
-    create_users(ticket_array, submitter_user_data)
-    create_users(incident_ticket_array, submitter_user_data)
+    create_users_and_my_tickets(ticket_array, submitter_user_data)
+    create_users_and_my_tickets(incident_ticket_array, submitter_user_data)
 
-    [ticket_array, incident_ticket_array]
+    [ticket_array, incident_ticket_array, $my_tickets_array]
   end
 end
