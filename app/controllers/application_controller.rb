@@ -1,12 +1,11 @@
 class ApplicationController < ActionController::API
-
   def serialize_ticket_data(sfa_data)
     submitter_ids = []
     ticket_array = []
     incident_ticket_array = []
-    $my_tickets_array = []
-    sfa_data.all do | resource |
-      if resource.type == "incident"
+    user_ticket_array = []
+    sfa_data.all do |resource|
+      if resource.type == 'incident'
         incident_ticket_array << {
           id: resource.id,
           problem_id: resource.problem_id,
@@ -16,7 +15,7 @@ class ApplicationController < ActionController::API
           created_at: resource.created_at,
           updated_at: resource.updated_at,
           status: resource.status
-          }
+        }
       else
         ticket_array << {
           id: resource.id,
@@ -27,12 +26,12 @@ class ApplicationController < ActionController::API
           updated_at: resource.updated_at,
           status: resource.status,
           has_incidents: resource.has_incidents
-          }
+        }
     end
-    submitter_ids << resource.submitter_id
-  end
+      submitter_ids << resource.submitter_id
+    end
 
-    users = ZEN_CLIENT.users.show_many(:ids => submitter_ids)
+    users = ZEN_CLIENT.users.show_many(ids: submitter_ids)
 
     submitter_user_data = {}
 
@@ -40,21 +39,16 @@ class ApplicationController < ActionController::API
       submitter_user_data[user.id] = user.name
     end
 
-    def create_users_and_my_tickets(ticket_object, submitter_user_data)
-      ticket_object.each do | ticket |
-        submitter_id = ticket[:submitter]
-        ticket[:username] = submitter_user_data[submitter_id]
-      end
-      ticket_object.each do | ticket|
-        if ticket[:username] == params[:username]
-          $my_tickets_array << ticket
-        end
-      end
+    add_username_to_tickets = lambda do |ticket|
+      submitter_id = ticket[:submitter]
+      ticket[:username] = submitter_user_data[submitter_id]
+      # creates user tickets array 
+      user_ticket_array << ticket if ticket[:username] == params[:username]
     end
 
-    create_users_and_my_tickets(ticket_array, submitter_user_data)
-    create_users_and_my_tickets(incident_ticket_array, submitter_user_data)
+    ticket_array.each(&add_username_to_tickets)
+    incident_ticket_array.each(&add_username_to_tickets)
 
-    [ticket_array, incident_ticket_array, $my_tickets_array]
+    [ticket_array, incident_ticket_array, user_ticket_array]
   end
 end
