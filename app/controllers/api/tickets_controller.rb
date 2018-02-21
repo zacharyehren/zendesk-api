@@ -23,7 +23,8 @@ class Api::TicketsController < ApplicationController
   end
 
   def new_comment
-    user = ZEN_CLIENT.users.search(:query => params[:user_email])
+    user = User.find_by email: params[:user_email]
+    # user = ZEN_CLIENT.users.search(:query => params[:user_email])
     user_id = user.first.id
     ticket = ZEN_CLIENT.tickets.find(id: params[:id])
     #passing in the user id as the author_id pulls in the end-users info in the submitted comment according to https://support.zendesk.com/hc/en-us/community/posts/207597658-Adding-comments-to-existing-ticket-as-end-user

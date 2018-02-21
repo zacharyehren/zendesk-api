@@ -4,7 +4,9 @@ class ApplicationController < ActionController::API
     ticket_array = []
     incident_ticket_array = []
     user_ticket_array = []
+
     sfa_data.all do |resource|
+      # look up user in User table with resource.submitter_id
       if resource.type == 'incident'
         incident_ticket_array << {
           id: resource.id,
@@ -31,18 +33,20 @@ class ApplicationController < ActionController::API
       submitter_ids << resource.submitter_id
     end
 
-    users = ZEN_CLIENT.users.show_many(ids: submitter_ids)
+    users = User.where zen_desk_id: submitter_ids
+
+    # users = ZEN_CLIENT.users.show_many(ids: submitter_ids)
 
     submitter_user_data = {}
 
-    users.all do |user|
-      submitter_user_data[user.id] = user.name
+    users.each do |user|
+      submitter_user_data[user.zen_desk_id] = user.name
     end
 
     add_username_to_tickets = lambda do |ticket|
       submitter_id = ticket[:submitter]
       ticket[:username] = submitter_user_data[submitter_id]
-      # creates user tickets array 
+      # creates user tickets array
       user_ticket_array << ticket if ticket[:username] == params[:username]
     end
 
