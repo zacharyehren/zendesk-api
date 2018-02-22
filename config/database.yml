@@ -22,6 +22,6 @@ test:
 
 production:
   <<: *default
-  adapter: postgres
+  adapter: postgresql
   url: <%= ENV['DATABASE_URL'] %>
   database: zendesk_api_production
