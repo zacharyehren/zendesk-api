@@ -6,7 +6,6 @@ class ApplicationController < ActionController::API
     user_ticket_array = []
 
     sfa_data.all do |resource|
-      # look up user in User table with resource.submitter_id
       if resource.type == 'incident'
         incident_ticket_array << {
           id: resource.id,
@@ -34,8 +33,6 @@ class ApplicationController < ActionController::API
     end
 
     users = User.where zen_desk_id: submitter_ids
-
-    # users = ZEN_CLIENT.users.show_many(ids: submitter_ids)
 
     submitter_user_data = {}
 
