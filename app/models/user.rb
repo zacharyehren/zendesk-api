@@ -1,13 +1,14 @@
 class User < ApplicationRecord
-  def self.get_users_from_zen_desk
+  def self.sync_users_from_zen_desk
     User.transaction do
-      ZEN_CLIENT.users.per_page(100).all do | user |
-        new_user = User.new do |u|
-          u.name = user.name
-          u.zen_desk_id = user.id
-          u.email = user.email
-        end
-        new_user.save!
+      ZEN_CLIENT.users.per_page(100).all do | zen_desk_user |
+        user_params = {
+          name: zen_desk_user.name,
+          zen_desk_id: zen_desk_user.id,
+          email: zen_desk_user.email
+        }
+        user = User.find_or_initialize_by(user_params)
+        user.save!
       end
     end
   end
