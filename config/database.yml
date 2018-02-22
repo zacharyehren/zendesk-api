@@ -22,4 +22,6 @@ test:
 
 production:
   <<: *default
-  database: db/production.sqlite3
+  adapter: postgres
+  url: <%= ENV['DATABASE_URL'] %>
+  database: zendesk_api_production
