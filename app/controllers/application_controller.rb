@@ -1,55 +1,67 @@
 class ApplicationController < ActionController::API
+  # refactor to smaller methods
   def serialize_ticket_data(sfa_data)
-    submitter_ids = []
-    ticket_array = []
-    incident_ticket_array = []
-    user_ticket_array = []
+    @incident_tickets = []
+    @submitter_ids = []
+    @tickets = []
+    @user_tickets = []
 
-    sfa_data.all do |resource|
-      if resource.type == 'incident'
-        incident_ticket_array << {
-          id: resource.id,
-          problem_id: resource.problem_id,
-          type: resource.type,
-          subject: resource.subject,
-          submitter: resource.submitter_id,
-          created_at: resource.created_at,
-          updated_at: resource.updated_at,
-          status: resource.status
-        }
-      else
-        ticket_array << {
-          id: resource.id,
-          type: resource.type,
-          subject: resource.subject,
-          submitter: resource.submitter_id,
-          created_at: resource.created_at,
-          updated_at: resource.updated_at,
-          status: resource.status,
-          has_incidents: resource.has_incidents
-        }
+    sfa_data.all{ |resource| ticket_parse resource }
+    @tickets.each{ |ticket| decorate_ticket ticket }
+    @incident_tickets.each{ |ticket| decorate_ticket ticket }
+
+    [@tickets, @incident_tickets, @user_tickets]
+  end
+
+  # authenticate user from front end
+  def user_authentication
+  end
+
+  private
+
+  def ticket_parse(resource)
+    ticket = parse_zen_desk_resource resource
+    case ticket[:type]
+    when 'incident'
+      @incident_tickets << ticket
+    else
+      @tickets << ticket
     end
-      submitter_ids << resource.submitter_id
+    @submitter_ids << resource.submitter_id
+  end
+
+  def submitter_users
+    @submitter_users ||= users.map{ |user| [user.zen_desk_id, user.name] }.to_h
+  end
+
+  def decorate_ticket(ticket)
+    submitter_id = ticket[:submitter]
+    ticket[:username] = submitter_users[submitter_id]
+    # creates user tickets array
+    @user_tickets << ticket if ticket[:username] == params[:username]
+  end
+
+  def parse_zen_desk_resource(resource)
+    base_attrs = {
+      id: resource.id,
+      type: resource.type,
+      subject: resource.subject,
+      submitter: resource.submitter_id,
+      created_at: resource.created_at,
+      updated_at: resource.updated_at,
+      status: resource.status
+    }
+
+    if resource.type == 'incident'
+      base_attrs[:problem_id] = resource.problem_id
+    else
+      base_attrs[:has_incidents] = resource.has_incidents
     end
 
-    users = User.where zen_desk_id: submitter_ids
+    base_attrs
+  end
 
-    submitter_user_data = {}
-
-    users.each do |user|
-      submitter_user_data[user.zen_desk_id] = user.name
-    end
-
-    add_username_to_tickets = lambda do |ticket|
-      submitter_id = ticket[:submitter]
-      ticket[:username] = submitter_user_data[submitter_id]
-      # creates user tickets array
-      user_ticket_array << ticket if ticket[:username] == params[:username]
-    end
-
-    ticket_array.each(&add_username_to_tickets)
-    incident_ticket_array.each(&add_username_to_tickets)
-
-    [ticket_array, incident_ticket_array, user_ticket_array]
+  def users
+    @users ||= User.where zen_desk_id: @submitter_ids
   end
 end
